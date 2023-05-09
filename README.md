@@ -87,3 +87,43 @@ For each file a backward and forward pass was performed 10 times.
 
 During each pass, CPU and RAM utilization was recorded.
 
+```
+$./bin/TextCompress tests/lorem.txt 1                                                                                                                                   [2/30]
+ ------ Reading Input ------                                     
+ ------ Forward Pass Starting ------ 
+ ------ Forward Pass Complete ------ 
+4509.783581 sec elapsed
+ ------ Backward Pass Starting ------ 
+ ------ Backward Pass Complete ------ 
+1339.647527 sec elapsed
+
+
+------------- ANALYSIS -------------
+Round trip works? true
+Original size: 2.9MB (3000635)
+Compressed size: 35.7KB (36463)
+Bytes saved: 2964172
+Percentage of original file: 1.22%
+Total Time (including middle IO):
+5849.433431 sec elapsed
+```
+
+```
+$./bin/TextCompress tests/lorem.txt 8
+ ------ Reading Input ------
+ ------ Forward Pass Starting ------
+ ------ Forward Pass Complete ------
+143.303913 sec elapsed
+ ------ Backward Pass Starting ------
+ ------ Backward Pass Complete------
+45.442844 sec elapsed
+
+------------- ANALYSIS -------------                                                      
+Round trip works? true                                                   
+Original size: 2.9MB (3000635)                                             
+Compressed size: 261.2KB (267438)                                                      
+Bytes saved: 2733197                                                     
+Percentage of original file: 8.91%    
+Total Time (including middle IO):                                 
+188.750174 sec elapsed
+```
