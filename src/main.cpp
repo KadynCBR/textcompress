@@ -147,6 +147,7 @@ int main(int argc, char *argv[]) {
   Total.Start();
   pass.Start(" ------ Forward Pass Starting ------ ");
 
+  // This while a good idea, might be harmful in terms of seeing true speedup.
   int MAX_BLOCK_SIZE = 250000;  // limit to 25kb
   int block_count = ceil(input.length() / MAX_BLOCK_SIZE);
   int subrange = MAX_BLOCK_SIZE;
