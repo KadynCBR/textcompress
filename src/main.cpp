@@ -9,7 +9,6 @@
 #include <filesystem>
 #include <cmath>
 
-#include "Progress.h"
 #include "bwt.h"
 #include "cRLE.h"
 #include "omp.h"
@@ -39,8 +38,6 @@ std::string makePrintable(const std::string &s) {
   for (auto &c : ls) {
     if (c == STX) {
       c = '^';
-    } else if (c == ETX) {
-      c = '|';
     }
   }
   return ls;
@@ -59,16 +56,11 @@ void writeFile(string fn, string payload) {
   t.close();
 }
 
-string CompressBlock(string block, bool use_high_memory = false) {
+string CompressBlock(string block) {
   string encoded = "";
+  string transformed = "";
   try {
-    string transformed = "";
-    if (use_high_memory) {
-      transformed = intonlybwt(block);
-    } else {
-      transformed = inplace_bwt(block);
-    }
-    writeFile("OUT", transformed);
+    transformed = inplace_bwt(block);
     encoded = encode(transformed);
   } catch (std::runtime_error const &) {
     cout << "PROBLEM" << endl;
@@ -142,16 +134,8 @@ void Analyze(string originalinput, string inverseread, string original_fn, strin
 
 int main(int argc, char *argv[]) {
   if (argc < 3) {
-    cout << "Wrong number of args please run as follows.\n./TextCompress <num_threads> <inputfile> <memory_mode>\n"
-         << endl;
+    cout << "Wrong number of args please run as follows.\n./TextCompress <num_threads> <inputfile>\n" << endl;
     exit(1);
-  }
-  bool highmem_mode = false;
-  if (argc == 4) {
-    if (stoi(argv[3]) == 1) {
-      highmem_mode = true;
-      cout << "![WARN]! Using high memory mode." << endl;
-    }
   }
   ////////////////////////////////// Input
   cout << " ------ Reading Input ------ " << endl;
@@ -172,8 +156,10 @@ int main(int argc, char *argv[]) {
     subrange = input.length() / thread_count;
   }
 
-  cout << "Total size: " << input.length() << endl;
-  cout << "# of blocks: " << block_count << endl;
+  if (DEBUG) {
+    cout << "Total size: " << input.length() << endl;
+    cout << "# of blocks: " << block_count << endl;
+  }
   // Work for each thread
   // number of blocks
   vector<string> blocks(block_count);
@@ -182,10 +168,10 @@ int main(int argc, char *argv[]) {
   for (int i = 0; i < block_count; i++) {
     if (i == block_count - 1) {
       if (DEBUG) cout << input.substr(i * subrange) << endl;
-      blocks.at(i) = CompressBlock(input.substr(i * subrange), highmem_mode);
+      blocks.at(i) = CompressBlock(input.substr(i * subrange));
     } else {
       if (DEBUG) cout << input.substr(i * subrange, subrange) << endl;
-      blocks.at(i) = CompressBlock(input.substr(i * subrange, subrange), highmem_mode);
+      blocks.at(i) = CompressBlock(input.substr(i * subrange, subrange));
     }
   }
   WriteBlocks(compressed_fn, blocks);

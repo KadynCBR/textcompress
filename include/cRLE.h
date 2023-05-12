@@ -55,22 +55,3 @@ string decode(string inputstring) {
   }
   return out;
 }
-
-// int main() {
-//   // 12WB12W3B24WB14W
-//   string test_string = "WWWWWWWWWWWWBWWWWWWWWWWWWBBBWWWWWWWWWWWWWWWWWWWWWWWWBWWWWWWWWWWWWWW";
-//   // string test_string = "This could be 100% cool if this would work 999999% of the time but it dont";
-
-//   cout << "Input:  \"" << test_string << "\"\n";
-
-//   string encoded_str, decoded_str;
-//   encoded_str = encode(test_string);
-//   decoded_str = decode(encoded_str);
-
-//   cout << "Output: \n" << encoded_str << endl;
-
-//   cout.setf(cout.boolalpha);
-//   cout << "Round trip works: " << (test_string == decoded_str) << '\n';
-
-//   return 0;
-// }
