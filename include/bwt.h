@@ -5,10 +5,66 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
-
+#include <execution>
 #include "Progress.h"
 #include "Stopwatch.h"
 using namespace std;
+
+const int STX = 0x02;
+const int ETX = 0x03;
+
+// Position tracked BWT variant
+std::vector<int> cyclic_rotations(const std::string &s) {
+  string S_LOOKUP = s + s;
+  std::vector<int> rotations(s.size());
+#pragma omp parallel for num_threads(8)
+  for (int i = 0; i < s.size(); i++) {
+    rotations[i] = i;
+  }
+
+  CherryChrono::StopWatch st(0);
+  st.Start("Starting Sort");
+
+  // Sort the indices of cyclic rotations based on the cyclic rotations themselves
+  std::sort(rotations.begin(), rotations.end(), [&](int a, int b) {
+    return (S_LOOKUP.substr((a), s.size()) < S_LOOKUP.substr((b), s.size()));
+    // for (int i = 0; i < s.size(); i++) {
+    //   if (s[(a + i) % s.size()] != s[(b + i) % s.size()]) {
+    //     return s[(a + i) % s.size()] < s[(b + i) % s.size()];
+    //   }
+    // }
+    // return false;  // a and b are equal
+  });
+  st.End("Finished Sort");
+  return rotations;
+}
+
+std::string intonlybwt(const std::string &src) {
+  string s = "";
+  s += src;
+  s += STX;
+  std::vector<int> rotations = cyclic_rotations(s);
+
+  // Extract the last characters of the sorted rotations to obtain the BWT
+  std::string bwt_string(s.size(), ' ');
+  int first_index = -1;
+#pragma omp parallel for num_threads(8)
+  for (int i = 0; i < s.size(); i++) {
+    if (rotations[i] == STX) {
+      first_index = i;
+    }
+    bwt_string[i] = s[(rotations[i] + s.size() - 1) % s.size()];
+  }
+  return bwt_string;
+  // // Add the index of the first character in the original string to the beginning of the BWT
+  // std::string result;
+  // for (char c : bwt_string) {
+  //   result += c;
+  // }
+  // return result;
+}
+
+// END Position tracked BWT variant
 
 struct CharacterPosition {
   CharacterPosition() {
@@ -22,9 +78,6 @@ struct CharacterPosition {
   int position;
   char character;
 };
-
-const int STX = 0x02;
-const int ETX = 0x03;
 
 void rotate(string &a) {
   char t = a[a.length() - 1];
@@ -41,7 +94,6 @@ string inplace_bwt(string inp) {
   int i, p, r, s;
   unsigned char c;
   for (s = n - 3; s >= 0; s--) {
-    // CherryProg::printProgress(double(n - s) / double(n));
     c = rets[s];
 
     r = s;

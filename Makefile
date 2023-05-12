@@ -3,9 +3,11 @@ TARGETNAME=TextCompress
 
 SRC_DIR = src
 OBJ_DIR = obj
+INC_DIR = include
 
 TARGET = $(BIN_DIR)/$(TARGETNAME)
 SRC = $(wildcard $(SRC_DIR)/*.cpp)
+HDRS = $(wildcard $(INC_DIR)/*.h)
 OBJ = $(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
 CC = g++
@@ -20,7 +22,7 @@ all: $(TARGET)
 $(TARGET): $(OBJ) | $(BIN_DIR)
 	$(CC) -g -fopenmp $(LDFLAGS) $^ $(LDLIBS) -o $@
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(HDRS)  | $(OBJ_DIR)
 	$(CC) -g $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 $(BIN_DIR) $(OBJ_DIR):

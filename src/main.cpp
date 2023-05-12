@@ -64,10 +64,11 @@ string CompressBlock(string block, bool use_high_memory = false) {
   try {
     string transformed = "";
     if (use_high_memory) {
-      transformed = bwt(block);
+      transformed = intonlybwt(block);
     } else {
       transformed = inplace_bwt(block);
     }
+    writeFile("OUT", transformed);
     encoded = encode(transformed);
   } catch (std::runtime_error const &) {
     cout << "PROBLEM" << endl;
