@@ -162,18 +162,27 @@ int main(int argc, char *argv[]) {
   CherryChrono::StopWatch Total(0);
   Total.Start();
   pass.Start(" ------ Forward Pass Starting ------ ");
+
+  int MAX_BLOCK_SIZE = 250000;  // limit to 25kb
+  int block_count = ceil(input.length() / MAX_BLOCK_SIZE);
+  int subrange = MAX_BLOCK_SIZE;
   int thread_count = stoi(argv[1]);
-  int subrange = input.length() / thread_count;
-  int residuals = input.length() % thread_count;
+  if (thread_count > block_count) {
+    block_count = thread_count;
+    subrange = input.length() / thread_count;
+  }
+
+  cout << "Total size: " << input.length() << endl;
+  cout << "# of blocks: " << block_count << endl;
   // Work for each thread
   // number of blocks
-  vector<string> blocks(thread_count);
+  vector<string> blocks(block_count);
 
 #pragma omp parallel for num_threads(thread_count) shared(blocks)
-  for (int i = 0; i < thread_count; i++) {
-    if (i == thread_count - 1) {
-      if (DEBUG) cout << input.substr(i * subrange, input.length()) << endl;
-      blocks.at(i) = CompressBlock(input.substr(i * subrange, input.length()), highmem_mode);
+  for (int i = 0; i < block_count; i++) {
+    if (i == block_count - 1) {
+      if (DEBUG) cout << input.substr(i * subrange) << endl;
+      blocks.at(i) = CompressBlock(input.substr(i * subrange), highmem_mode);
     } else {
       if (DEBUG) cout << input.substr(i * subrange, subrange) << endl;
       blocks.at(i) = CompressBlock(input.substr(i * subrange, subrange), highmem_mode);
