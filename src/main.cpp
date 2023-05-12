@@ -59,10 +59,15 @@ void writeFile(string fn, string payload) {
   t.close();
 }
 
-string CompressBlock(string block) {
+string CompressBlock(string block, bool use_high_memory = false) {
   string encoded = "";
   try {
-    string transformed = inplace_bwt(block);
+    string transformed = "";
+    if (use_high_memory) {
+      transformed = bwt(block);
+    } else {
+      transformed = inplace_bwt(block);
+    }
     encoded = encode(transformed);
   } catch (std::runtime_error const &) {
     cout << "PROBLEM" << endl;
@@ -136,19 +141,27 @@ void Analyze(string originalinput, string inverseread, string original_fn, strin
 
 int main(int argc, char *argv[]) {
   if (argc < 3) {
-    cout << "need filename and num threads." << endl;
+    cout << "Wrong number of args please run as follows.\n./TextCompress <num_threads> <inputfile> <memory_mode>\n"
+         << endl;
     exit(1);
+  }
+  bool highmem_mode = false;
+  if (argc == 4) {
+    if (stoi(argv[3]) == 1) {
+      highmem_mode = true;
+      cout << "![WARN]! Using high memory mode." << endl;
+    }
   }
   ////////////////////////////////// Input
   cout << " ------ Reading Input ------ " << endl;
-  string input = readFile(argv[1]);
-  string compressed_fn = argv[1];
+  string input = readFile(argv[2]);
+  string compressed_fn = argv[2];
   compressed_fn += ".compress";
   CherryChrono::StopWatch pass(0);
   CherryChrono::StopWatch Total(0);
   Total.Start();
   pass.Start(" ------ Forward Pass Starting ------ ");
-  int thread_count = stoi(argv[2]);
+  int thread_count = stoi(argv[1]);
   int subrange = input.length() / thread_count;
   int residuals = input.length() % thread_count;
   // Work for each thread
@@ -159,10 +172,10 @@ int main(int argc, char *argv[]) {
   for (int i = 0; i < thread_count; i++) {
     if (i == thread_count - 1) {
       if (DEBUG) cout << input.substr(i * subrange, input.length()) << endl;
-      blocks.at(i) = CompressBlock(input.substr(i * subrange, input.length()));
+      blocks.at(i) = CompressBlock(input.substr(i * subrange, input.length()), highmem_mode);
     } else {
       if (DEBUG) cout << input.substr(i * subrange, subrange) << endl;
-      blocks.at(i) = CompressBlock(input.substr(i * subrange, subrange));
+      blocks.at(i) = CompressBlock(input.substr(i * subrange, subrange), highmem_mode);
     }
   }
   WriteBlocks(compressed_fn, blocks);
@@ -183,7 +196,7 @@ int main(int argc, char *argv[]) {
   }
   if (DEBUG) cout << "Finished: " << finished_string << endl;
   pass.End(" ------ Backward Pass Complete ------ ");
-  Analyze(input, finished_string, argv[1], compressed_fn);
+  Analyze(input, finished_string, argv[2], compressed_fn);
   Total.End("Total Time (including middle IO):");
   return 0;
 }
