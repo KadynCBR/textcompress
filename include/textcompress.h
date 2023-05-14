@@ -78,6 +78,6 @@ class TextCompress {
   int subrange;
   int thread_count;
   int block_count;
-  int MAX_BLOCK_SIZE = 250000;
+  int MAX_BLOCK_SIZE = 500000;
   bool DEBUG = false;
 };

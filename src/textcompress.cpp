@@ -31,16 +31,18 @@ void TextCompress::ForwardPass(string input_fn, int num_threads) {
     }
   }
   WriteBlocks(file_out, blocks);
-  cerr << "Compressed file: " << file_out << endl;
+  if (DEBUG) cerr << "Compressed file: " << file_out << endl;
 }
 
 void TextCompress::BackwardPass(string compressed_fn, int num_threads) {
   vector<string> read_blocks = ReadBlocks(compressed_fn);
-  for (auto &s : read_blocks) {
-    if (DEBUG) cout << s << endl;
+  if (DEBUG) {
+    for (auto &s : read_blocks) {
+      cout << s << endl;
+    }
   }
   vector<string> decoded_blocks(read_blocks.size());
-#pragma omp parallel for num_threads(thread_count) shared(read_blocks, decoded_blocks)
+#pragma omp parallel for num_threads(num_threads) shared(read_blocks, decoded_blocks)
   for (int i = 0; i < read_blocks.size(); i++) {
     decoded_blocks.at(i) = DecompressBlock(read_blocks[i]);
   }
@@ -50,7 +52,7 @@ void TextCompress::BackwardPass(string compressed_fn, int num_threads) {
   }
   writeFile(compressed_fn.substr(0, compressed_fn.size() - 8) + "uncompress", finished_string);
   if (DEBUG) cout << "Finished: " << finished_string << endl;
-  cerr << "Uncompressed file: " << compressed_fn.substr(0, compressed_fn.size() - 8) + "uncompress" << endl;
+  if (DEBUG) cerr << "Uncompressed file: " << compressed_fn.substr(0, compressed_fn.size() - 8) + "uncompress" << endl;
 }
 
 string TextCompress::CompressBlock(string block) {
