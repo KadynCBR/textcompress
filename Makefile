@@ -12,7 +12,7 @@ OBJ = $(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
 CC = g++
 CPPFLAGS = -Iinclude -fopenmp
-CFLAGS = -O0 -std=c++20 
+CFLAGS = -O2 -std=c++20 
 LDFLAGS =
 LDLIBS =
 

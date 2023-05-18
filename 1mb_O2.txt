@@ -1,0 +1,16 @@
+ ------ Forward Pass Starting ------ 
+ ------ Forward Pass Complete ------ 
+282.486146 sec elapsed
+ ------ Backward Pass Starting ------ 
+ ------ Backward Pass Complete ------ 
+49.651654 sec elapsed
+
+
+------------- ANALYSIS -------------
+Round trip works? true
+Original size: 1MB (1048576)
+Compressed size: 65.6KB (67073)
+Bytes saved: 981503
+Percentage of original file: 6.40%
+Total Time (including middle IO):
+332.142873 sec elapsed
